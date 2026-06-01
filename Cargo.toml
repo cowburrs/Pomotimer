@@ -1,8 +1,9 @@
 [package]
-name = "quick-start"
+name = "pomotimer"
 version = "0.1.0"
 edition = "2021"
 license = "MIT"
 
 [dependencies]
+clap = { version = "4.6.1", features = ["derive"] }
 notify-rust = "4.17.0"
