@@ -12,6 +12,11 @@
       url = "github:rustsec/advisory-db";
       flake = false;
     };
+
+    rust-overlay = {
+      url = "github:oxalica/rust-overlay";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
   outputs =
@@ -21,16 +26,23 @@
       crane,
       flake-utils,
       advisory-db,
+      rust-overlay,
       ...
     }:
     flake-utils.lib.eachDefaultSystem (
       system:
       let
-        pkgs = nixpkgs.legacyPackages.${system};
-
         inherit (pkgs) lib;
+        pkgs = import nixpkgs {
+          inherit system;
+          overlays = [ (import rust-overlay) ];
+        };
 
-        craneLib = crane.mkLib pkgs;
+        rustToolchain = pkgs.rust-bin.stable.latest.default.override {
+          targets = [ "x86_64-pc-windows-msvc" ];
+        };
+
+        craneLib = (crane.mkLib pkgs).overrideToolchain rustToolchain;
         src =
           let
             unfilteredRoot = ./.;
@@ -168,6 +180,7 @@
             rustfmt
             rust-analyzer
             my-crate
+            cargo-xwin
           ]);
           shellHook = ''
             export REPO_ROOT=$(git rev-parse --show-toplevel)
