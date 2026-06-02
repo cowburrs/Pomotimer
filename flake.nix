@@ -78,6 +78,7 @@
 
           # Additional environment variables can be set directly
           # MY_CUSTOM_VAR = "some value";
+          # RUST_MIN_STACK = 134217728; # NOTE: good luck compiling this xDD
         };
 
         # Build *just* the cargo dependencies, so we can reuse
