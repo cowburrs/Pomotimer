@@ -52,8 +52,7 @@ struct Log {
 fn play_finish() {
     use std::io::BufReader;
     use std::io::Cursor;
-    let mut sink_handle =
-        rodio::DeviceSinkBuilder::open_default_sink().unwrap();
+    let mut sink_handle = rodio::DeviceSinkBuilder::open_default_sink().unwrap();
     sink_handle.log_on_drop(false);
     let cursor = Cursor::new(include_bytes!("../assets/sfx/POMODORO-FINISH.wav").as_ref());
     let file = BufReader::new(cursor);
@@ -65,8 +64,7 @@ fn play_finish() {
 fn play_end() {
     use std::io::BufReader;
     use std::io::Cursor;
-    let mut sink_handle =
-        rodio::DeviceSinkBuilder::open_default_sink().unwrap();
+    let mut sink_handle = rodio::DeviceSinkBuilder::open_default_sink().unwrap();
     sink_handle.log_on_drop(false);
     let cursor = Cursor::new(include_bytes!("../assets/sfx/POMODORO-BREAK-END.wav").as_ref());
     let file = BufReader::new(cursor);
@@ -90,6 +88,11 @@ fn timer(secs: Duration) {
     let start = Instant::now();
 
     terminal::enable_raw_mode().unwrap();
+    let dt = if secs.as_millis() / 100 > 1000 {
+        1000
+    } else {
+        (secs.as_millis() / 100) as u64
+    };
     loop {
         let elapsed = start.elapsed();
         let i = elapsed.as_secs_f32();
@@ -105,7 +108,7 @@ fn timer(secs: Duration) {
         print!("\r\n");
         print_bar_percent(i / (secs.as_secs() as f32));
 
-        if event::poll(Duration::from_millis((secs.as_millis() / 100) as u64)).unwrap() {
+        if event::poll(Duration::from_millis(dt)).unwrap() {
             if let Event::Key(key_event) = event::read().unwrap() {
                 if key_event.code == KeyCode::Char('q') {
                     execute!(
@@ -118,6 +121,7 @@ fn timer(secs: Duration) {
                 }
             }
         }
+        // TODO: I need to handle ctrlc, i'll use the crate I think.
 
         execute!(
             stdout(),
