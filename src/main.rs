@@ -14,10 +14,15 @@ enum Commands {
     /// Run a simple Pomodoro timer.
     Run {
         #[arg(default_value = "50m")]
+        /// Amount of time to study.
+        /// refer to https://docs.rs/humantime/latest/humantime/fn.parse_duration.html
         study: String,
         #[arg(default_value = "10m")]
+        /// Amount of time to rest.
+        /// refer to https://docs.rs/humantime/latest/humantime/fn.parse_duration.html
         rest: String,
         #[arg(default_value = "", short, long)]
+        /// General name of action, e.g. maths, physics.
         name: String,
     },
     /// Connect to a peer (not implemented)
