@@ -32,7 +32,7 @@ enum Commands {
     },
 }
 
-use chrono::{NaiveDate, NaiveTime};
+use chrono::{NaiveDate, NaiveTime, Timelike};
 use serde::{Deserialize, Serialize};
 #[derive(Deserialize, Serialize, Debug)]
 struct Log {
@@ -201,7 +201,7 @@ fn main() {
             let now = chrono::Local::now();
             let mut timestamps: Vec<NaiveTime> = vec![];
 
-            timestamps.push(chrono::Local::now().time());
+            timestamps.push(chrono::Local::now().time().with_nanosecond(0).unwrap());
             timer(parse_duration(&study).unwrap()); // BUG: I need to error handle this
                                                     // but i don't care tbh
             send_notification(
@@ -209,10 +209,10 @@ fn main() {
                 &format!("Your study timer of {} is finished", study),
             );
             play_finish();
-            timestamps.push(chrono::Local::now().time());
+            timestamps.push(chrono::Local::now().time().with_nanosecond(0).unwrap());
             timer(parse_duration(&rest).unwrap()); // TODO: I want more granularity. like
                                                    // seconds and stuff
-            timestamps.push(chrono::Local::now().time());
+            timestamps.push(chrono::Local::now().time().with_nanosecond(0).unwrap());
             send_notification(
                 "Break Finished",
                 &format!("Your rest timer of {} is finished", rest),
