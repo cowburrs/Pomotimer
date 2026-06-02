@@ -1,4 +1,5 @@
 use core::time;
+use std::time::Duration;
 
 use clap::{Parser, Subcommand};
 use notify_rust::Notification;
@@ -34,7 +35,7 @@ fn play_finish() {
     let cursor = Cursor::new(include_bytes!("../assets/sfx/POMODORO-FINISH.wav").as_ref());
     let file = BufReader::new(cursor);
     let player = rodio::play(&sink_handle.mixer(), file).unwrap();
-    player.set_volume(0.2);
+    player.set_volume(0.15);
     player.sleep_until_end();
 }
 
@@ -58,10 +59,29 @@ fn send_notification(summary: &str, body: &str) {
         .show()
         .expect("failed to send notification");
 }
-fn timer(secs: u64) {
-    for i in 0..secs {
-        println!("{}/{}", i + 1, secs);
-        std::thread::sleep(time::Duration::from_secs(1))
+fn timer(secs: Duration) {
+    use crossterm::{cursor, event, execute, terminal};
+    use std::io::stdout;
+    let mut i = 0.0;
+    loop {
+        if i > secs.as_secs_f32() {
+            break;
+        }
+        i += 0.1;
+        println!(
+            "{}/{}",
+            humantime::format_duration(Duration::from_secs(secs.as_secs() - i as u64)),
+            humantime::format_duration(secs)
+        );
+        print_bar_percent({ i / (secs.as_secs() as f32) });
+        std::thread::sleep(time::Duration::from_millis(100));
+        // event::poll(std::time::Duration::from_millis(100)).unwrap();
+        execute!(
+            stdout(),
+           cursor::MoveUp(2),
+            terminal::Clear(terminal::ClearType::FromCursorDown),
+        )
+        .unwrap();
     }
 }
 fn print_bar(width: u16) {
@@ -97,40 +117,28 @@ fn print_bar(width: u16) {
         )
         .unwrap();
     }
-    println!("{}", ResetColor);
+    print!("{}", ResetColor);
 }
 fn print_bar_percent(percentage: f32) {
+    let percentage = percentage.clamp(0.0, 1.0);
     print_bar((percentage * (75 as f32)) as u16);
+    println!(" {}%", (percentage * 100.0).round())
 }
 
 fn main() {
-    use crossterm::{cursor, execute, terminal};
-    use std::io::stdout;
-    execute!(stdout(), cursor::SavePosition).unwrap();
-    for i in 0..101 {
-        execute!(
-            stdout(),
-            cursor::RestorePosition,
-            terminal::Clear(terminal::ClearType::FromCursorDown)
-        )
-        .unwrap();
-        print_bar_percent({ i as f32 } / 100.0);
-        std::thread::sleep(time::Duration::from_millis(200));
-    }
-
     let args = Args::parse();
-
     match args.command {
         Commands::Run { study, rest } => {
             use humantime::parse_duration;
-            timer(parse_duration(&study).unwrap().as_secs()); // BUG: I need to error handle this
-                                                              // but i don't care tbh
+            timer(parse_duration(&study).unwrap()); // BUG: I need to error handle this
+                                                    // but i don't care tbh
             send_notification(
                 "Study Finished",
                 &format!("Your study timer of {} is finished", study),
             );
             play_finish();
-            timer(parse_duration(&rest).unwrap().as_secs());
+            timer(parse_duration(&rest).unwrap()); // TODO: I want more granularity. like
+                                                   // seconds and stuff
             send_notification(
                 "Break Finished",
                 &format!("Your rest timer of {} is finished", rest),
