@@ -80,7 +80,7 @@ fn send_notification(summary: &str, body: &str) {
         .show()
         .expect("failed to send notification");
 }
-fn timer(secs: Duration) {
+fn timer(secs: Duration) { // TODO: I need to be able to see the name of the subject i'm doing
     use crossterm::event::{Event, KeyCode};
     use crossterm::{cursor, event, execute, terminal};
     use std::io::stdout;
