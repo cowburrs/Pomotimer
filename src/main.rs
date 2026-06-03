@@ -174,21 +174,14 @@ fn print_bar_percent(percentage: f32) {
     print!(" {}%", (percentage * 100.0).round());
     print!("\r\n")
 }
-fn write_log(log: Log) {
+fn write_log(log: Log) { // TODO: Rewrite this so it doesnt just rewrite the entire fucking file
+                         // again and waste a bunch of disk usage
     use directories::BaseDirs;
     use serde_json::from_str;
     use std::fs;
     if let Some(dir) = BaseDirs::new() {
         let target = dir.data_local_dir().join("pomotimer/pomodoro_log.json");
 
-        #[derive(Deserialize, Serialize, Debug)]
-        struct Todo {
-            #[serde(rename = "userId")]
-            user_id: usize,
-            id: usize,
-            title: String,
-            completed: bool,
-        }
         let json = fs::read_to_string(&target).unwrap_or("[]".to_string());
         let mut todos = from_str::<Vec<Log>>(&json).unwrap(); // TODO: use expect instead here
                                                               // TODO: Handle all errors instead of unwrapping. so basically remove all unwraps
