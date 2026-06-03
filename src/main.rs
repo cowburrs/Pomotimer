@@ -20,9 +20,9 @@ fn set_status() -> Box<dyn Fn(discord_rich_presence::activity::Activity)> {
             .0
             .set_activity(
                 activity::Activity::new()
-                    .state("foo")
-                    .details("bar")
-                    .name("Cutie")
+                    .state("In between..")
+                    .details("Studying currently.")
+                    .name("Pomodoro.")
                     .assets(Assets::new().small_image("todo").small_text("idrk")),
             )
             .unwrap();

@@ -175,17 +175,25 @@ fn write_log(log: Log) {
     }
 }
 
-use crate::structs::{RunArgs};
+use crate::structs::RunArgs;
 pub fn run(
     runargs: crate::structs::RunArgs,
     _status: Box<dyn Fn(discord_rich_presence::activity::Activity)>,
 ) {
+    use discord_rich_presence::activity::{Activity, Assets};
     let RunArgs { study, rest, name } = runargs;
     use humantime::parse_duration;
     let now = chrono::Local::now();
     let mut timestamps: Vec<NaiveTime> = vec![];
 
     timestamps.push(chrono::Local::now().time().with_nanosecond(0).unwrap());
+    _status(
+        Activity::new()
+            .state("Studying")
+            .details("Studying currently.")
+            .name("Pomodoro.")
+            .assets(Assets::new().small_image("todo").small_text("idrk")),
+    );
     timer(parse_duration(&study).unwrap()); // BUG: I need to error handle this
                                             // but i don't care tbh
     send_notification(
@@ -194,6 +202,13 @@ pub fn run(
     );
     play_finish();
     timestamps.push(chrono::Local::now().time().with_nanosecond(0).unwrap());
+    _status(
+        Activity::new()
+            .state("Resting")
+            .details("Studying currently.")
+            .name("Pomodoro.")
+            .assets(Assets::new().small_image("todo").small_text("idrk")),
+    );
     timer(parse_duration(&rest).unwrap()); // TODO: I want more granularity. like
                                            // seconds and stuff
     timestamps.push(chrono::Local::now().time().with_nanosecond(0).unwrap());
