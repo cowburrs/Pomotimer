@@ -80,14 +80,16 @@ fn send_notification(summary: &str, body: &str) {
         .show()
         .expect("failed to send notification");
 }
-fn timer(secs: Duration) { // TODO: I need to be able to see the name of the subject i'm doing
-    use crossterm::event::{Event, KeyCode};
+fn timer(secs: Duration) {
+    // TODO: I need to be able to see the name of the subject i'm doing
+    use crossterm::event::{Event, KeyCode, KeyModifiers};
     use crossterm::{cursor, event, execute, terminal};
     use std::io::stdout;
     use std::time::Instant;
     let start = Instant::now();
 
     terminal::enable_raw_mode().unwrap();
+
     let dt = if secs.as_millis() / 100 > 1000 {
         1000
     } else {
@@ -110,14 +112,28 @@ fn timer(secs: Duration) { // TODO: I need to be able to see the name of the sub
 
         if event::poll(Duration::from_millis(dt)).unwrap() {
             if let Event::Key(key_event) = event::read().unwrap() {
-                if key_event.code == KeyCode::Char('q') {
-                    execute!(
-                        stdout(),
-                        cursor::MoveUp(2),
-                        terminal::Clear(terminal::ClearType::FromCursorDown),
-                    )
-                    .unwrap();
-                    break;
+                match key_event.code {
+                    KeyCode::Char('q') => {
+                        execute!(
+                            stdout(),
+                            cursor::MoveUp(2),
+                            terminal::Clear(terminal::ClearType::FromCursorDown),
+                        )
+                        .unwrap();
+                        break;
+                    }
+                    KeyCode::Char('c') if key_event.modifiers.contains(KeyModifiers::CONTROL) => {
+                        execute!(
+                            stdout(),
+                            cursor::MoveUp(2),
+                            terminal::Clear(terminal::ClearType::FromCursorDown),
+                        )
+                        .unwrap();
+                        terminal::disable_raw_mode().unwrap();
+                        eprintln!("warning: Session not saved. Use 'q' to quit instead of Ctrl+C.");
+                        std::process::exit(1);
+                    }
+                    _ => {}
                 }
             }
         }
@@ -174,8 +190,9 @@ fn print_bar_percent(percentage: f32) {
     print!(" {}%", (percentage * 100.0).round());
     print!("\r\n")
 }
-fn write_log(log: Log) { // TODO: Rewrite this so it doesnt just rewrite the entire fucking file
-                         // again and waste a bunch of disk usage
+fn write_log(log: Log) {
+    // TODO: Rewrite this so it doesnt just rewrite the entire fucking file
+    // again and waste a bunch of disk usage
     use directories::BaseDirs;
     use serde_json::from_str;
     use std::fs;
