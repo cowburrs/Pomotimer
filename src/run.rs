@@ -213,7 +213,7 @@ fn pomo_activity(
         ]);
     match pomotype {
         PomoType::Rest => {
-            act = act.details("Working Hard!").assets(
+            act = act.details("Resting zzz...").assets(
                 Assets::new()
                     .large_image("todo")
                     .large_text("Pomodoro Timer")
@@ -222,7 +222,7 @@ fn pomo_activity(
             );
         }
         PomoType::Study => {
-            act = act.details("Studying zzz...").assets(
+            act = act.details("Working Hard!").assets(
                 Assets::new()
                     .large_image("todo")
                     .large_text("Pomodoro Timer")
