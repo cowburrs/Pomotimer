@@ -256,7 +256,7 @@ pub fn run(
     play_finish();
     timestamps.push(chrono::Local::now().time().with_nanosecond(0).unwrap());
 
-    _status(pomo_activity(&name, studyduration, PomoType::Rest));
+    _status(pomo_activity(&name, restduration, PomoType::Rest));
     timer(restduration); // TODO: I want more granularity. like
                          // seconds and stuff
     timestamps.push(chrono::Local::now().time().with_nanosecond(0).unwrap());

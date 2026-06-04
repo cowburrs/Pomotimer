@@ -1,5 +1,4 @@
 use clap::Parser;
-use std::time::Duration;
 
 mod structs;
 
@@ -35,7 +34,8 @@ fn set_status() -> Box<dyn Fn(discord_rich_presence::activity::Activity)> {
 }
 
 mod run;
-fn main() {
+#[tokio::main]
+async fn main() {
     use structs::Args;
     use structs::Commands;
     let _status = set_status();
@@ -44,6 +44,8 @@ fn main() {
         Commands::Run(runargs) => {
             run::run(runargs, _status);
         }
+        // Commands::Host { name } => {}
+        // Commands::Connect { name } => {}
         _ => {
             println!("Sorry I haven't implemented this yet. Coming soon tho!!")
         }
