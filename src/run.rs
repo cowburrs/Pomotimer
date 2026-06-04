@@ -189,10 +189,10 @@ pub fn run(
     timestamps.push(chrono::Local::now().time().with_nanosecond(0).unwrap());
     _status(
         Activity::new()
-            .state("Studying")
+            .state(format!("Studying for {}", study))
             .details("Studying currently.")
-            .name("Pomodoro.")
-            .assets(Assets::new().small_image("todo").small_text("idrk")),
+            .name("Pomodoro")
+            .assets(Assets::new().small_image("study").small_text("idrk")),
     );
     timer(parse_duration(&study).unwrap()); // BUG: I need to error handle this
                                             // but i don't care tbh
@@ -204,10 +204,10 @@ pub fn run(
     timestamps.push(chrono::Local::now().time().with_nanosecond(0).unwrap());
     _status(
         Activity::new()
-            .state("Resting")
-            .details("Studying currently.")
-            .name("Pomodoro.")
-            .assets(Assets::new().small_image("todo").small_text("idrk")),
+            .state(format!("Rest for {}", rest))
+            .details("resting time woohoo")
+            .name("Pomodoro")
+            .assets(Assets::new().small_image("rest").small_text("idrk")),
     );
     timer(parse_duration(&rest).unwrap()); // TODO: I want more granularity. like
                                            // seconds and stuff
