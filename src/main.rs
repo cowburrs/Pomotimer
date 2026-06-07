@@ -7,21 +7,19 @@ mod structs;
 
 fn set_status() -> Box<dyn Fn(discord_rich_presence::activity::Activity)> {
     use discord_rich_presence::{activity, activity::Assets, DiscordIpc, DiscordIpcClient};
-    struct Discord(DiscordIpcClient);
-
-    impl Drop for Discord {
-        fn drop(&mut self) {
-            self.0.close().unwrap();
-        }
+    struct Discord {
+        dc: DiscordIpcClient,
+        connected: bool,
     }
 
-    let mut client = Discord(DiscordIpcClient::new("1503690275783184454"));
-    // FIX: it panics on discord not being open. I'll just have a print statement or something I
-    // thinik
+    let mut client = Discord {
+        dc: DiscordIpcClient::new("1503690275783184454"),
+        connected: false,
+    };
 
-    if client.0.connect().is_ok() {
-        client
-            .0
+    if client.dc.connect().is_ok() {
+        if client
+            .dc
             .set_activity(
                 activity::Activity::new()
                     .state("In between..")
@@ -29,12 +27,34 @@ fn set_status() -> Box<dyn Fn(discord_rich_presence::activity::Activity)> {
                     .name("Pomodoro.")
                     .assets(Assets::new().small_image("todo").small_text("idrk")),
             )
-            .unwrap();
+            .is_ok()
+        {
+            client.connected = true;
+        } else {
+            println!("warning: Discord rich presence not established.")
+        }
+
         let client = std::cell::RefCell::new(client);
+
         return Box::new(move |act| {
-            client.borrow_mut().0.set_activity(act).unwrap();
+            client.borrow_mut().dc.set_activity(act).unwrap();
         });
+    } else {
+        println!("tip: You can use discord rich presence with Pomotimer!");
     }
+
+    impl Drop for Discord {
+        fn drop(&mut self) {
+            if self.dc.close().is_ok() {
+                println!("success: Discord connection successfully closed.");
+            } else {
+                if self.connected {
+                    println!("warning: Discord connection improperly closed.");
+                }
+            }
+        }
+    }
+
     Box::new(|_| {})
 }
 
@@ -43,10 +63,10 @@ mod run;
 async fn main() {
     use structs::Args;
     use structs::Commands;
-    let _status = set_status();
     let args = Args::parse();
     match args.command {
         Commands::Run(runargs) => {
+            let _status = set_status();
             run::run(runargs, _status);
         }
         Commands::Host { .. } => {
