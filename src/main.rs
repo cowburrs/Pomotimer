@@ -1,5 +1,8 @@
 use clap::Parser;
 
+use crate::host::host_iroh;
+
+mod host;
 mod structs;
 
 fn set_status() -> Box<dyn Fn(discord_rich_presence::activity::Activity)> {
@@ -13,6 +16,8 @@ fn set_status() -> Box<dyn Fn(discord_rich_presence::activity::Activity)> {
     }
 
     let mut client = Discord(DiscordIpcClient::new("1503690275783184454"));
+    // FIX: it panics on discord not being open. I'll just have a print statement or something I
+    // thinik
 
     if client.0.connect().is_ok() {
         client
@@ -44,8 +49,10 @@ async fn main() {
         Commands::Run(runargs) => {
             run::run(runargs, _status);
         }
-        // Commands::Host { name } => {}
-        // Commands::Connect { name } => {}
+        Commands::Host { .. } => {
+            let _ = host_iroh().await;
+        }
+        // Commands::Connect { .. } => {}
         _ => {
             println!("Sorry I haven't implemented this yet. Coming soon tho!!")
         }
