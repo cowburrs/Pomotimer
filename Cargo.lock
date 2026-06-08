@@ -3130,7 +3130,6 @@ dependencies = [
  "chrono",
  "clap",
  "crossterm",
- "data-encoding",
  "directories",
  "discord-rich-presence",
  "humantime",
@@ -3145,8 +3144,6 @@ dependencies = [
  "serde_json",
  "sha2",
  "tokio",
- "tokio-util",
- "tracing-subscriber",
 ]
 
 [[package]]
