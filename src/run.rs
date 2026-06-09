@@ -1,5 +1,6 @@
 use crate::structs::RunArgs;
 use chrono::{NaiveDate, NaiveTime, Timelike};
+use crossterm::event::KeyEvent;
 use notify_rust::Notification;
 use serde::{Deserialize, Serialize};
 use std::time::Duration;
@@ -44,6 +45,23 @@ fn send_notification(summary: &str, body: &str) {
         .show()
         .expect("failed to send notification");
 }
+
+fn ctrlcexit() {
+    use crossterm::event::{Event, KeyCode, KeyModifiers};
+    use crossterm::{cursor, event, execute, terminal};
+    use std::io::stdout;
+    use std::time::Instant;
+    execute!(
+        stdout(),
+        cursor::MoveUp(2),
+        terminal::Clear(terminal::ClearType::FromCursorDown),
+    )
+    .unwrap();
+    terminal::disable_raw_mode().unwrap();
+    eprintln!("warning: Session not saved. Use 'q' to quit instead of Ctrl+C.");
+    std::process::exit(1);
+}
+
 fn timer(secs: Duration) {
     // TODO: I need to be able to see the name of the subject i'm doing
     use crossterm::event::{Event, KeyCode, KeyModifiers};
@@ -86,33 +104,46 @@ fn timer(secs: Duration) {
                         .unwrap();
                         break;
                     }
-                    KeyCode::Char('c') if key_event.modifiers.contains(KeyModifiers::CONTROL) => {
+
+                    KeyCode::Char('p') => {
                         execute!(
                             stdout(),
                             cursor::MoveUp(2),
                             terminal::Clear(terminal::ClearType::FromCursorDown),
                         )
-                        .unwrap();
-                        terminal::disable_raw_mode().unwrap();
-                        eprintln!("warning: Session not saved. Use 'q' to quit instead of Ctrl+C.");
-                        std::process::exit(1);
+                        .ok();
+                        println!("info: press any button to unpause.\n");
+                        execute!(stdout(), cursor::MoveToColumn(0)).ok();
+                        if let Ok(Event::Key(KeyEvent {
+                            code: KeyCode::Char('c'),
+                            modifiers,
+                            ..
+                        })) = event::read()
+                        {
+                            if modifiers.contains(KeyModifiers::CONTROL) {
+                                ctrlcexit();
+                            }
+                        }
+                    }
+                    KeyCode::Char('c') if key_event.modifiers.contains(KeyModifiers::CONTROL) => {
+                        ctrlcexit();
                     }
                     _ => {}
                 }
             }
         }
         // TODO: I need to handle ctrlc, i'll use the crate I think.
-
         execute!(
             stdout(),
             cursor::MoveUp(2),
             terminal::Clear(terminal::ClearType::FromCursorDown),
+            cursor::MoveToColumn(0),
         )
         .unwrap();
     }
-
     terminal::disable_raw_mode().unwrap();
 }
+
 fn print_bar(width: u16) {
     use crossterm::execute;
     use crossterm::style::{Color, Print, ResetColor, SetForegroundColor};
@@ -157,21 +188,18 @@ fn print_bar_percent(percentage: f32) {
 fn write_log(log: Log) {
     // TODO: Rewrite this so it doesnt just rewrite the entire fucking file
     // again and waste a bunch of disk usage
-    use directories::BaseDirs;
     use serde_json::from_str;
     use std::fs;
-    if let Some(dir) = BaseDirs::new() {
-        let target = dir.data_local_dir().join("pomotimer/pomodoro_log.json");
-
+    if let Some(proj) = directories::ProjectDirs::from("", "", "pomotimer") {
+        let data_dir = proj.data_local_dir();
+        fs::create_dir_all(data_dir).unwrap();
+        let target = data_dir.join("pomodoro_log.json");
         let json = fs::read_to_string(&target).unwrap_or("[]".to_string());
         let mut todos = from_str::<Vec<Log>>(&json).unwrap(); // TODO: use expect instead here
-                                                              // TODO: Handle all errors instead of unwrapping. so basically remove all unwraps
         todos.push(log);
-        fs::write(
-            dir.data_local_dir().join("pomotimer/pomodoro_log.json"),
-            serde_json::to_string(&todos).unwrap(),
-        )
-        .unwrap();
+
+        // TODO: Handle all errors instead of unwrapping. so basically remove all unwraps
+        fs::write(target, serde_json::to_string(&todos).unwrap()).unwrap();
     }
 }
 
