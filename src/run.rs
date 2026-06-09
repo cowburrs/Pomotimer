@@ -244,12 +244,12 @@ pub fn run(
     let mut timestamps: Vec<NaiveTime> = vec![];
     let studyduration = parse_duration(&study)
         .inspect_err(|_| {
-            eprintln!("error: unable to parse studyduration, defaulting to 50m");
+            eprintln!("error: unable to parse study, defaulting to 50m");
         })
         .unwrap_or(Duration::from_mins(50));
     let restduration = parse_duration(&study)
         .inspect_err(|_| {
-            eprintln!("error: unable to parse studyduration, defaulting to 10m");
+            eprintln!("error: unable to parse rest, defaulting to 10m");
         })
         .unwrap_or(Duration::from_mins(10));
 
