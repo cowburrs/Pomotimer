@@ -48,7 +48,6 @@ fn set_status() -> Box<dyn Fn(discord_rich_presence::activity::Activity)> {
     impl Drop for Discord {
         fn drop(&mut self) {
             if self.dc.close().is_ok() {
-                println!("success: Discord connection successfully closed.");
             } else {
                 if self.connected {
                     println!("warning: Discord connection improperly closed.");

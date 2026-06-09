@@ -242,8 +242,16 @@ pub fn run(
     use humantime::parse_duration;
     let now = chrono::Local::now();
     let mut timestamps: Vec<NaiveTime> = vec![];
-    let studyduration = parse_duration(&study).unwrap();
-    let restduration = parse_duration(&rest).unwrap();
+    let studyduration = parse_duration(&study)
+        .inspect_err(|_| {
+            eprintln!("error: unable to parse studyduration, defaulting to 50m");
+        })
+        .unwrap_or(Duration::from_mins(50));
+    let restduration = parse_duration(&study)
+        .inspect_err(|_| {
+            eprintln!("error: unable to parse studyduration, defaulting to 10m");
+        })
+        .unwrap_or(Duration::from_mins(10));
 
     timestamps.push(chrono::Local::now().time().with_nanosecond(0).unwrap());
     _status(pomo_activity(&name, studyduration, PomoType::Study));
