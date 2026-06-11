@@ -25,9 +25,10 @@
         pkgs = nixpkgs.legacyPackages.${system};
         inherit (pkgs) lib;
         craneLib = crane.mkLib pkgs;
-        packageJson = lib.importJSON ./package.json;
-        pname = packageJson.name;
-        version = packageJson.version;
+
+        package = (lib.importTOML ./src-tauri/Cargo.toml).package;
+        pname = package.name;
+        version = package.version;
 
         frontend = pkgs.buildNpmPackage {
           pname = pname;
