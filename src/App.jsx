@@ -2,6 +2,7 @@ import { useState } from "react";
 import reactLogo from "./assets/react.svg";
 import { invoke } from "@tauri-apps/api/core";
 import "./App.css";
+import { preinitModule } from "react-dom";
 
 function App() {
   const [greetMsg, setGreetMsg] = useState("");
@@ -39,7 +40,7 @@ function App() {
         <input
           id="greet-input"
           onChange={(e) => setName(e.currentTarget.value)}
-          placeholder="Enter a name..."
+          placeholder="does this print????"
         />
         <button type="submit">Greet</button>
       </form>
@@ -51,4 +52,23 @@ function App() {
 export default App;
 
 /* do backflips in order to get npm working */
+
+/* use "npm run dev" to open up the react thing */
+
+/* Bryce if you are reading this, I probably will not 
+edit anything here because it still only opens up as 
+a website */
+
+/* where the fuck do i even put the javascript gang */
+
+
+
+
+
+
+
+
+
+
+
 
