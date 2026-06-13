@@ -1,3 +1,4 @@
+// TODO: https://www.blazingly.fast/
 use core::time;
 use iroh::{endpoint::presets, Endpoint};
 use std::{
