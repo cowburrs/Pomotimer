@@ -3,6 +3,7 @@
 
 mod networking;
 mod timer;
+mod helpers;
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
@@ -21,6 +22,7 @@ fn create_bindings() -> tauri_specta::Builder<tauri::Wry> {
     let builder = tauri_specta::Builder::<tauri::Wry>::new()
         .semantic_types(specta_typescript::semantic::Configuration::default())
         .commands(tauri_specta::collect_commands![
+            helpers::print,
             timer::greet,
             timer::create_timer,
             timer::get_timer,

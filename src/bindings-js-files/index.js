@@ -5,6 +5,12 @@ import { invoke as __TAURI_INVOKE } from "@tauri-apps/api/core";
 /** Commands */
 export const commands = {
 	/**
+	 *  print to stdout instead of the in terminal.
+	 * @param {string} text
+	 * @returns {Promise<void>}
+	 */
+	print: (text) => __TAURI_INVOKE("print", { text }),
+	/**
 	 *  This is a default function that came with tauri
 	 *  It will be removed soon
 	 * @param {string} name
