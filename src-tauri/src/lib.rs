@@ -18,7 +18,6 @@ pub fn run() {
 }
 
 fn create_bindings() -> tauri_specta::Builder<tauri::Wry> {
-    use specta_typescript::{JSDoc, Layout};
     let builder = tauri_specta::Builder::<tauri::Wry>::new()
         .semantic_types(specta_typescript::semantic::Configuration::default())
         .commands(tauri_specta::collect_commands![
@@ -33,14 +32,16 @@ fn create_bindings() -> tauri_specta::Builder<tauri::Wry> {
         // .typ::<Custom>()
         // .typ::<Testing>()
         .events(tauri_specta::collect_events![]);
-    #[cfg(debug_assertions)]
-    {
-        builder
-            .export(
-                JSDoc::default().layout(Layout::Files),
-                "../src/bindings-js-files",
-            )
-            .expect("Failed to export typescript bindings");
-    }
     return builder;
+}
+#[test]
+fn export_bindings() {
+    use specta_typescript::{JSDoc, Layout};
+    create_bindings()
+        .export(
+            JSDoc::default().layout(Layout::Files),
+            "../src/bindings-js-files",
+        )
+        .expect("Failed to export typescript bindings");
+    println!("Created bindings!")
 }
