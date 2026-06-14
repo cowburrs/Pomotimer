@@ -119,6 +119,7 @@
               pkg-config
               wrapGAppsHook4
               rustc
+              prettier
             ]);
 
             shellHook = ''
