@@ -34,6 +34,7 @@ fn get_secret(string: &str) -> SecretKey {
 
 #[tauri::command]
 #[specta::specta]
+/// Host a connection, this will error if you try to run this/join twice.
 pub async fn host(state: tauri::State<'_, Pomoconnection>, room: String) -> Result<(), String> {
     let endpoint = Endpoint::builder(presets::N0)
         .secret_key(get_secret(&room))
@@ -72,6 +73,7 @@ pub async fn host(state: tauri::State<'_, Pomoconnection>, room: String) -> Resu
 
 #[tauri::command]
 #[specta::specta]
+/// Join a connection, you can string both the top and the bottom to join the host
 pub async fn join(state: tauri::State<'_, Pomoconnection>, room: String) -> Result<(), String> {
     let endpoint = Endpoint::builder(presets::N0)
         .bind()
@@ -109,6 +111,7 @@ pub async fn join(state: tauri::State<'_, Pomoconnection>, room: String) -> Resu
 
 #[tauri::command]
 #[specta::specta]
+/// This is to receive the message, it will return the string or empty if there wasnt any messasges
 pub fn receivemessage(state: tauri::State<'_, Pomoconnection>) -> Option<String> {
     let mut lock = match state.pc.try_lock() {
         Ok(lock) => lock,
@@ -128,6 +131,7 @@ pub fn receivemessage(state: tauri::State<'_, Pomoconnection>) -> Option<String>
 
 #[tauri::command]
 #[specta::specta]
+/// This is to send a connection, both host and join can send one. plain text.
 pub async fn sendmessage(
     state: tauri::State<'_, Pomoconnection>,
     message: String,

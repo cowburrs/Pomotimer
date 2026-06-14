@@ -5,33 +5,45 @@ import { invoke as __TAURI_INVOKE } from "@tauri-apps/api/core";
 /** Commands */
 export const commands = {
 	/**
+	 *  This is a default function that came with tauri
+	 *  It will be removed soon
 	 * @param {string} name
 	 * @returns {Promise<string>}
 	 */
 	greet: (name) => __TAURI_INVOKE("greet", { name }),
-	/** @returns {Promise<number>} */
+	/**
+	 *  Create a timer, it returns the index of the timer.
+	 * @returns {Promise<number>}
+	 */
 	createTimer: () => __TAURI_INVOKE("create_timer"),
 	/**
+	 *  Get a timers time from its current position in the index.
 	 * @param {number} index
 	 * @returns {Promise<number>}
 	 */
 	getTimer: (index) => __TAURI_INVOKE("get_timer", { index }),
 	/**
+	 *  Host a connection, this will error if you try to run this/join twice.
 	 * @param {string} room
 	 * @returns {Promise<{ status: "ok"; data: null } | { status: "error"; error: string }>}
 	 */
 	host: (room) => typedError(__TAURI_INVOKE("host", { room })),
 	/**
+	 *  Join a connection, you can string both the top and the bottom to join the host
 	 * @param {string} room
 	 * @returns {Promise<{ status: "ok"; data: null } | { status: "error"; error: string }>}
 	 */
 	join: (room) => typedError(__TAURI_INVOKE("join", { room })),
 	/**
+	 *  This is to send a connection, both host and join can send one. plain text.
 	 * @param {string} message
 	 * @returns {Promise<{ status: "ok"; data: null } | { status: "error"; error: string }>}
 	 */
 	sendmessage: (message) => typedError(__TAURI_INVOKE("sendmessage", { message })),
-	/** @returns {Promise<string | null>} */
+	/**
+	 *  This is to receive the message, it will return the string or empty if there wasnt any messasges
+	 * @returns {Promise<string | null>}
+	 */
 	receivemessage: () => __TAURI_INVOKE("receivemessage"),
 };
 
