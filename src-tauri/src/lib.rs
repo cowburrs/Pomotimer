@@ -1,14 +1,14 @@
 // TODO: Clippy pedantic
 // TODO: https://www.blazingly.fast/
 
+mod events;
+mod helpers;
 mod networking;
 mod timer;
-mod helpers;
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     let handlers = create_bindings().invoke_handler();
-
     tauri::Builder::default()
         .manage(timer::Timers::new())
         .manage(networking::create_pc())
@@ -33,7 +33,10 @@ fn create_bindings() -> tauri_specta::Builder<tauri::Wry> {
         ])
         // .typ::<Custom>()
         // .typ::<Testing>()
-        .events(tauri_specta::collect_events![]);
+        .events(tauri_specta::collect_events![
+            events::JoinEvent,
+            events::MessageEvent
+        ]);
     return builder;
 }
 #[test]
