@@ -16,6 +16,7 @@ function App() {
   function handleClick() {
     alert("You are hosting " + hostName);
   }
+  commands.setStatus("hello", 3000, "Study");
 
   // This is the ui portion...
   return (
