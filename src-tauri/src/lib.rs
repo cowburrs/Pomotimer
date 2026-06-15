@@ -18,6 +18,17 @@ pub fn run() {
         .expect("error while running tauri application");
 }
 
+#[derive(serde::Serialize, serde::Deserialize, specta::Type)]
+pub enum TimerState {
+    Rest,
+    Study,
+    Afk,
+}
+#[tauri::command]
+#[specta::specta]
+/// FUNCTION DOES NOTHING CURRENTLY
+fn set_discord(state: TimerState) {}
+
 fn create_bindings() -> tauri_specta::Builder<tauri::Wry> {
     let builder = tauri_specta::Builder::<tauri::Wry>::new()
         .semantic_types(specta_typescript::semantic::Configuration::default())
@@ -30,6 +41,7 @@ fn create_bindings() -> tauri_specta::Builder<tauri::Wry> {
             networking::join,
             networking::sendmessage,
             networking::receivemessage,
+            set_discord,
         ])
         // .typ::<Custom>()
         // .typ::<Testing>()
@@ -39,6 +51,7 @@ fn create_bindings() -> tauri_specta::Builder<tauri::Wry> {
         ]);
     return builder;
 }
+
 #[test]
 fn export_bindings() {
     use specta_typescript::{JSDoc, Layout};
