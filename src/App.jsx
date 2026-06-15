@@ -1,5 +1,5 @@
+// @ts-check
 import { useState } from "react";
-import reactLogo from "./assets/react.svg";
 import { invoke } from "@tauri-apps/api/core";
 import "./App.css";
 import { preinitModule } from "react-dom";
@@ -54,7 +54,6 @@ function App() {
           let x = await commands.receivemessage();
           if (x === null) {
             commands.print("NOTHING");
-            commands.print(x);
           } else {
             commands.print(x);
           }
