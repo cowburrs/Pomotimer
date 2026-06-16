@@ -40,8 +40,13 @@ pub async fn network(
     bootstrap: Vec<PublicKey>,
     sk: Option<SecretKey>,
 ) -> Result<(), String> {
-    println!("Waiting for lock");
-    let mut lock = state.pc.lock().await;
+    let mut lock = match state.pc.try_lock() {
+        Ok(thing) => thing,
+        Err(_) => {
+            eprintln!("Already trying to network!");
+            return Err("tried to network twice.".to_string());
+        }
+    };
     println!("Lock obtained, proceeding to network.");
     if let Some(Pc { .. }) = &*lock {
         eprintln!("Can't host twice.");
