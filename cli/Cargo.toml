@@ -1,0 +1,24 @@
+[package]
+name = "pomotimer"
+version = "0.1.0"
+edition = "2021"
+license = "MIT"
+
+[dependencies]
+chrono = { version = "0.4", features = ["serde"] }
+clap = { version = "4.6.1", features = ["derive"] }
+crossterm = "0.29.0"
+directories = "6.0.0"
+discord-rich-presence = "1.1.0"
+humantime = "2.3.0"
+iroh = "0.98.2"
+iroh-gossip = "0.98.0"
+n0-error = "0.1.3"
+n0-future = "0.3.2"
+notify-rust = "4.17.0"
+rand = "0.10.1"
+rodio = "0.22.2"
+serde = { version = "1.0.228", features = ["derive"] }
+serde_json = "1.0.150"
+sha2 = "0.11.0-rc.5"
+tokio = { version = "1.52.3", features = ["full"] }

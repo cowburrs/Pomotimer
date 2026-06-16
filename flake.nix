@@ -8,15 +8,26 @@
     # or override (the previous follows clause warned about non-existent inputs).
     crane-tauri.url = "github:JPHutchins/crane-tauri";
     flake-utils.url = "github:numtide/flake-utils";
+
+    advisory-db = {
+      url = "github:rustsec/advisory-db";
+      flake = false;
+    };
+
+    rust-overlay = {
+      url = "github:oxalica/rust-overlay";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
   outputs =
-    {
+    inputs@{
       self,
       nixpkgs,
       crane,
       crane-tauri,
       flake-utils,
+      rust-overlay,
       ...
     }:
     flake-utils.lib.eachDefaultSystem (
@@ -64,11 +75,26 @@
             CARGO_BUILD_JOBS = "4";
           };
         };
+
+        pkgsCli = import nixpkgs {
+          inherit system;
+          overlays = [ (import rust-overlay) ];
+        };
+
       in
       {
         packages = {
           inherit frontend;
           default = tauri.app;
+          cli =
+            (import ./nix/cli.nix (
+              {
+                inherit system self;
+                pkgs = pkgsCli;
+                lib = pkgs.lib;
+              }
+              // inputs
+            )).package;
         };
 
         checks = {
