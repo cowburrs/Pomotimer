@@ -1,9 +1,3 @@
-// TODO: Implement drop for router so i can drop properly.
-// TODO: I NEED TO REMOVE TAURI STATE FROM ALL FUNCTIONS AND WRAP TAURI STATE SO THAT I CAN CALL THE
-// FUNCTIONS TO TEST INSTEAD OF JUST HOPING AND PRAYING
-
-use std::time::Duration;
-
 use futures::{FutureExt, StreamExt};
 use iroh::{endpoint::presets, protocol::Router, Endpoint, PublicKey, SecretKey};
 use iroh_gossip::{
@@ -17,6 +11,13 @@ struct Pc {
     router: Router,
     receiver: GossipReceiver,
     sender: GossipSender,
+}
+impl Drop for Pc {
+    fn drop(&mut self) {
+        tokio::runtime::Handle::current()
+            .block_on(self.router.shutdown())
+            .ok();
+    }
 }
 pub struct Pomoconnection {
     pc: Mutex<Option<Pc>>,
@@ -114,7 +115,8 @@ pub async fn join(state: tauri::State<'_, Pomoconnection>, room: String) -> Resu
 
 #[tauri::command]
 #[specta::specta]
-/// This is to receive the message, it will return the string or empty if there wasnt any messasges
+/// This is to receive the message, it will return the string or null if there wasnt any messasges
+/// This will return the oldest unread message.
 pub fn receivemessage(state: tauri::State<'_, Pomoconnection>) -> Option<String> {
     let mut lock = match state.pc.try_lock() {
         Ok(lock) => lock,
