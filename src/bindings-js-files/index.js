@@ -53,7 +53,8 @@ export const commands = {
 	 */
 	sendmessage: (message) => typedError(__TAURI_INVOKE("sendmessage", { message })),
 	/**
-	 *  This is to receive the message, it will return the string or empty if there wasnt any messasges
+	 *  This is to receive the message, it will return the string or null if there wasnt any messasges
+	 *  This will return the oldest unread message.
 	 * @returns {Promise<string | null>}
 	 */
 	receivemessage: () => __TAURI_INVOKE("receivemessage"),
