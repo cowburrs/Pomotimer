@@ -263,7 +263,7 @@ pub fn run(
             eprintln!("error: unable to parse study, defaulting to 50m");
         })
         .unwrap_or(Duration::from_mins(50));
-    let restduration = parse_duration(&study)
+    let restduration = parse_duration(&rest)
         .inspect_err(|_| {
             eprintln!("error: unable to parse rest, defaulting to 10m");
         })
