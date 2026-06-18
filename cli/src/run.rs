@@ -1,5 +1,6 @@
 use crate::structs::RunArgs;
 use chrono::{NaiveDate, NaiveTime, Timelike};
+use n0_error::AnyError;
 use notify_rust::Notification;
 use serde::{Deserialize, Serialize};
 use std::time::Duration;
@@ -153,7 +154,7 @@ fn print_bar_percent(percentage: f32) {
     print!(" {}%", (percentage * 100.0).round());
     print!("\r\n")
 }
-fn write_log(log: Log) -> Result {
+fn write_log(log: Log) -> Result<(), ()> {
     // TODO: Rewrite this so it doesnt just rewrite the entire fucking file
     // again and waste a bunch of disk usage
     use directories::BaseDirs;
@@ -163,7 +164,7 @@ fn write_log(log: Log) -> Result {
         let target = dir.data_local_dir().join("pomotimer/pomodoro_log.json");
 
         let json = fs::read_to_string(&target).unwrap_or("[]".to_string());
-        let mut todos = from_str::<Vec<Log>>(&json)?;
+        let mut todos = serde_json::from_str::<Vec<Log>>(&json).map_err(|_| ())?;
         todos.push(log);
         fs::write(
             dir.data_local_dir().join("pomotimer/pomodoro_log.json"),
@@ -196,10 +197,8 @@ fn pomo_activity(
 
     let mut act = Activity::new() // TODO: Implement secrets/party when i make multiplayer.
         .name("Pomodoro")
-        .details_url("https://github.com/charatwukki/Pomotimer")
+        .details_url("https://github.com/cowburrs/Pomotimer")
         .state(format!("Doing {}", name))
-        .state_url("https://example.com/state") // TODO: create documentation for state. like i
-                                                // could have documentaiton for stuydy vs rest
         .activity_type(ActivityType::Competing)
         .status_display_type(StatusDisplayType::Name)
         .timestamps(
@@ -213,22 +212,32 @@ fn pomo_activity(
         ]);
     match pomotype {
         PomoType::Rest => {
-            act = act.details("Resting zzz...").assets(
-                Assets::new()
-                    .large_image("todo")
-                    .large_text("Pomodoro Timer")
-                    .small_image("rest")
-                    .small_text("Resting"),
-            );
+            act = act
+                .details("Resting zzz...")
+                .state_url(format!(
+                    "https://cowburrs.github.io/Pomotimer/book/rest.html"
+                ))
+                .assets(
+                    Assets::new()
+                        .large_image("todo")
+                        .large_text("Pomodoro Timer")
+                        .small_image("rest")
+                        .small_text("Resting"),
+                );
         }
         PomoType::Study => {
-            act = act.details("Working Hard!").assets(
-                Assets::new()
-                    .large_image("todo")
-                    .large_text("Pomodoro Timer")
-                    .small_image("study")
-                    .small_text("Studying"),
-            );
+            act = act
+                .details("Working Hard!")
+                .state_url(format!(
+                    "https://cowburrs.github.io/Pomotimer/book/study.html"
+                ))
+                .assets(
+                    Assets::new()
+                        .large_image("todo")
+                        .large_text("Pomodoro Timer")
+                        .small_image("study")
+                        .small_text("Studying"),
+                );
         }
     };
     act
